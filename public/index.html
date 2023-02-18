@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css"
+    />
+    <title>GitHub User Info Scraper</title>
+  </head>
+  <body>
+    <main class="container">
+      <h1 style="margin-bottom: 15px">GitHub User Info Scraper</h1>
+      <form>
+        <label for="username">
+          Enter the username of the GitHub account
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="Username"
+            required
+          />
+        </label>
+        <button type="submit">Scrape</button>
+      </form>
+      <pre class="result"></pre>
+    </main>
+
+    <script>
+      document.querySelector('form').addEventListener('submit', async e => {
+        e.preventDefault();
+
+        const submitButton = e.target[1];
+        const username = e.target[0].value;
+
+        submitButton.setAttribute('aria-busy', 'true');
+
+        const res = await fetch(`/scrape?username=${username}`);
+
+        submitButton.setAttribute('aria-busy', 'false');
+
+        if (!res.ok) {
+          return alert(data.message);
+        }
+
+        const data = await res.json();
+
+        document.querySelector('.result').textContent = JSON.stringify(
+          data,
+          null,
+          2
+        );
+      });
+    </script>
+  </body>
+</html>
