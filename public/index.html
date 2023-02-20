@@ -39,14 +39,13 @@
         submitButton.setAttribute('aria-busy', 'true');
 
         const res = await fetch(`/scrape?username=${username}`);
+        const data = await res.json();
 
         submitButton.setAttribute('aria-busy', 'false');
 
         if (!res.ok) {
           return alert(data.message);
         }
-
-        const data = await res.json();
 
         document.querySelector('.result').textContent = JSON.stringify(
           data,
