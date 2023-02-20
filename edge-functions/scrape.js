@@ -42,7 +42,7 @@ const getProfile = async username => {
 
 const digEmail = async username => {
   const data = await fetch(
-    `https://github.com/${username}?tab=repositories`
+    `https://github.com/${username}?tab=repositories&type=source`
   ).then(res => res.text());
   const { document } = parseHTML(data);
   const repo = document.querySelector(
