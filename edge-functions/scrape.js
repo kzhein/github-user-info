@@ -53,22 +53,17 @@ const digEmail = async username => {
     return undefined;
   }
 
-  const repoPageData = await fetch(`https://github.com${repo}`).then(res =>
+  const commitsData = await fetch(
+    `https://github.com${repo}/commits?author=${username}`
+  ).then(res => res.text());
+  const { document: commitsPageDocument } = parseHTML(commitsData);
+  const commit = commitsPageDocument.querySelector(
+    'a[aria-label="View commit details"]'
+  ).href;
+
+  const rawData = await fetch(`https://github.com${commit}.patch`).then(res =>
     res.text()
   );
-  const { document: repoPageDocument } = parseHTML(repoPageData);
-
-  const lastCommit = repoPageDocument.querySelector('a[data-hotkey="y"]')?.href;
-
-  if (!lastCommit) {
-    return undefined;
-  }
-
-  const commitHash = lastCommit.split('/').at(-1);
-
-  const rawData = await fetch(
-    `https://github.com${repo}/commit/${commitHash}.patch`
-  ).then(res => res.text());
 
   const lineWithEmail = rawData.split('\n')?.[1];
 
