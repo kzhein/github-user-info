@@ -98,7 +98,7 @@ export default async req => {
 
     const cachedProfile = await redis.get(username);
     if (cachedProfile) {
-      return new Response(cachedProfile, {
+      return new Response(JSON.stringify(cachedProfile), {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -108,7 +108,7 @@ export default async req => {
     const profile = await getProfile(username);
     profile.email = profile.email || (await digEmail(username));
 
-    await redis.set(username, JSON.stringify(profile), {
+    await redis.set(username, profile, {
       ex: 7 * 24 * 60 * 60,
     }); // cache for 7 days
 
