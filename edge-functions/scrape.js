@@ -1,7 +1,10 @@
 import { parseHTML } from 'https://esm.sh/linkedom@0.11/worker';
-import Redis from 'https://esm.sh/ioredis@5.3.1';
+import { Redis } from 'https://deno.land/x/upstash_redis/mod.ts';
 
-const redis = new Redis(Deno.env.get('REDIS_URL'));
+const redis = new Redis({
+  url: Deno.env.get('REDIS_URL'),
+  token: Deno.env.get('REDIS_TOKEN'),
+});
 
 const getProfile = async username => {
   const res = await fetch(`https://github.com/${username}`);
@@ -105,7 +108,9 @@ export default async req => {
     const profile = await getProfile(username);
     profile.email = profile.email || (await digEmail(username));
 
-    await redis.set(username, JSON.stringify(profile), 'EX', 7 * 24 * 60 * 60); // cache for 7 days
+    await redis.set(username, JSON.stringify(profile), {
+      ex: 7 * 24 * 60 * 60,
+    }); // cache for 7 days
 
     return new Response(JSON.stringify(profile), {
       headers: {
