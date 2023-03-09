@@ -1,4 +1,7 @@
 import { parseHTML } from 'https://esm.sh/linkedom@0.11/worker';
+import Redis from 'https://esm.sh/ioredis@5.3.1';
+
+const redis = new Redis(Deno.env.get('REDIS_URL'));
 
 const getProfile = async username => {
   const res = await fetch(`https://github.com/${username}`);
@@ -84,16 +87,37 @@ export default async req => {
     if (!username) {
       return new Response(JSON.stringify({ message: 'No username' }), {
         status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+
+    const cachedProfile = await redis.get(username);
+    if (cachedProfile) {
+      return new Response(cachedProfile, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
     }
 
     const profile = await getProfile(username);
     profile.email = profile.email || (await digEmail(username));
 
-    return new Response(JSON.stringify(profile, null, 2));
+    await redis.set(username, JSON.stringify(profile), 'EX', 7 * 24 * 60 * 60); // cache for 7 days
+
+    return new Response(JSON.stringify(profile), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   } catch (err) {
     return new Response(JSON.stringify({ message: err.message }), {
       status: err.status || 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
   }
 };
