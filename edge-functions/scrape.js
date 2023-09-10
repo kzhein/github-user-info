@@ -1,5 +1,10 @@
 import { parseHTML } from 'https://esm.sh/linkedom@0.11/worker';
 import { Redis } from 'https://deno.land/x/upstash_redis/mod.ts';
+import { load } from 'https://deno.land/std@0.201.0/dotenv/mod.ts';
+
+await load({
+  export: true,
+});
 
 const redis = new Redis({
   url: Deno.env.get('REDIS_URL'),
@@ -64,7 +69,7 @@ const digEmail = async username => {
   ).then(res => res.text());
   const { document: commitsPageDocument } = parseHTML(commitsData);
   const commit = commitsPageDocument.querySelector(
-    'a[aria-label="View commit details"]'
+    'a[id^="commit-details"]'
   ).href;
 
   const rawData = await fetch(`https://github.com${commit}.patch`).then(res =>
