@@ -2,9 +2,12 @@ import { parseHTML } from 'https://esm.sh/linkedom@0.11/worker';
 import { Redis } from 'https://deno.land/x/upstash_redis/mod.ts';
 import { load } from 'https://deno.land/std@0.201.0/dotenv/mod.ts';
 
-await load({
-  export: true,
-});
+// Fix file system access error on netlify (but works on deno deploy)
+try {
+  await load({
+    export: true,
+  });
+} catch {}
 
 const redis = new Redis({
   url: Deno.env.get('REDIS_URL'),
