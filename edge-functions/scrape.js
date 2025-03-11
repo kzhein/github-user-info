@@ -18,9 +18,7 @@ const getProfile = async username => {
   const res = await fetch(`https://github.com/${username}`);
 
   if (res.status === 404) {
-    const error = new Error('User not found!');
-    error.status = 404;
-    throw error;
+    throw Object.assign(new Error('User not found!'), { status: 404 });
   }
 
   const data = await res.text();
